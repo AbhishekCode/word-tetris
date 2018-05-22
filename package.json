@@ -5,6 +5,7 @@
   "dependencies": {
     "aphrodite": "^2.1.0",
     "react": "^16.2.0",
+    "react-animation-frame": "^1.0.1",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1"
   },

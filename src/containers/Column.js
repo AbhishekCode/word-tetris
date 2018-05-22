@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
 import Block from './Block'
+import { numberOfRow } from '../config/config'
 
 const styles = StyleSheet.create({
     container: {
@@ -10,16 +11,30 @@ const styles = StyleSheet.create({
     }
 });
 
-const numberOfBlocks = 15;
 
 export default class BlockColumn extends Component {
 
-    _getBlocks = () => {
-        let blocks = []
-        for (let i = 0; i < numberOfBlocks; i++) {
-            blocks.push(<Block />)
+
+    getLetterOnBlock = (bId) => {
+        const { letters } = this.props;
+        if (letters) {
+            for (let i = 0; i < letters.length; i++) {
+                if (letters[i].pos.y == bId) {
+                    return letters[i]
+                }
+            }
         }
 
+        return undefined;
+
+    }
+
+    _getBlocks = () => {
+        let blocks = []
+        for (let i = 0; i < numberOfRow; i++) {
+            const _letterOnBlock = this.getLetterOnBlock(i)
+            blocks.push(<Block pos={{ x: this.props.columnId, y: i }} letter={_letterOnBlock} />)
+        }
         return blocks;
     }
 
