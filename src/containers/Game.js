@@ -20,8 +20,49 @@ class Game extends Component {
     }
 
     componentDidMount() {
-
+        window.addEventListener("keypress", this._onKeyPress);
     }
+
+    _onKeyPress = (evt) => {
+        if (evt.key === "a") {
+            //move left
+            this._moveLeft()
+        } else if (evt.key === "d") {
+            //move right
+            this._moveRight()
+        }
+    }
+
+    _moveLeft = () => {
+        let updatedSomething = false
+        for (let i = 0; i < this.letters.length; i++) {
+            if (this.letters[i].moving) {
+                if (this.letters[i].pos.x > 0) {
+                    this.letters[i].pos.x = this.letters[i].pos.x - 1;
+                }
+                updatedSomething = true;
+            }
+        }
+        if (updatedSomething) {
+            this.setState({ updateFlag: !this.state.updateFlag })
+        }
+    }
+
+    _moveRight = () => {
+        let updatedSomething = false
+        for (let i = 0; i < this.letters.length; i++) {
+            if (this.letters[i].moving) {
+                if (this.letters[i].pos.x < noOfColumn - 1) {
+                    this.letters[i].pos.x = this.letters[i].pos.x + 1;
+                }
+                updatedSomething = true;
+            }
+        }
+        if (updatedSomething) {
+            this.setState({ updateFlag: !this.state.updateFlag })
+        }
+    }
+
 
     _startGame = () => {
         this.generateLetter();
@@ -36,14 +77,26 @@ class Game extends Component {
         this.gameInterval = setInterval(this.moveLetters, moveTime);
     }
 
+    _alreadyHasLetterInPos = (pos) => {
+        for (let i = 0; i < this.letters.length; i++) {
+            if (this.letters[i].pos.x == pos.x && this.letters[i].pos.y == pos.y) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     moveLetters = () => {
         let updatedSomething = false
         for (let i = 0; i < this.letters.length; i++) {
-            if (this.letters[i].pos.y < numberOfRow - 1) {
-                console.log("  this.letters[i] ", this.letters[i].pos.y)
-                this.letters[i].pos.y = this.letters[i].pos.y + 1;
+            if (this.letters[i].pos.y < numberOfRow - 1 && this.letters[i].moving) {
+                const alreadyHas = this._alreadyHasLetterInPos({ x: this.letters[i].pos.x, y: this.letters[i].pos.y + 1 })
+                if (!alreadyHas)
+                    this.letters[i].pos.y = this.letters[i].pos.y + 1;
+                if (this.letters[i].pos.y == numberOfRow - 1 || alreadyHas) {
+                    this.letters[i].moving = false;
+                }
                 updatedSomething = true;
-                console.log(" after this.letters[i] ", this.letters[i].pos.y)
             }
         }
         if (updatedSomething) {
@@ -63,6 +116,7 @@ class Game extends Component {
 
         const newLetter = {
             letter: letter,
+            moving: true,
             pos: {
                 x: columnno,
                 y: 0
