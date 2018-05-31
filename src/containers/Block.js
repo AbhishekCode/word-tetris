@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { StyleSheet, css } from 'aphrodite';
+import { COLORS } from '../config/config';
+
 
 const styles = StyleSheet.create({
     container: {
         display: 'flex',
         flex: 1,
         flexDirection: 'column',
-        border: '1px solid black',
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
@@ -30,12 +31,22 @@ export default class Block extends Component {
 
     render() {
         const { letter, pos } = this.props;
-        const className = letter ? css([styles.container, styles.filled]) : css(styles.container)
+
+        let fillerStyle = { border: '1px solid black' }
+        if (letter) {
+            let _backgroundColor = letter.moving ? COLORS.MOVING : COLORS.NOTMOVING;
+            if (letter.isWord) _backgroundColor = COLORS.POSSIBLE_WORD;
+            fillerStyle = {
+                backgroundColor: _backgroundColor,
+                border: '1px solid white'
+            }
+        }
+        const className = letter ? css([styles.container]) : css(styles.container)
         return (
-            <div className={className} >
+            <div className={className} style={fillerStyle} >
                 {letter && <span className={css(styles.mainText)}>{letter.letter}</span>}
-                <span className={css(styles.subText)}>{pos.x + "," + pos.y}</span>
-            </div>
+                < span className={css(styles.subText)} > {pos.x + "," + pos.y}</span >
+            </div >
         );
     }
 }

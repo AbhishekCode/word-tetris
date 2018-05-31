@@ -3,6 +3,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 import BlockColumn from './Column'
 import { noOfColumn, numberOfRow, moveTime } from '../config/config'
+import { checkWord } from '../config/wordCheck';
 
 const styles = StyleSheet.create({
     container: {
@@ -103,6 +104,7 @@ class Game extends Component {
             //console.log(this.state.letters, " vs ", updated)
             this.setState({ updateFlag: !this.state.updateFlag })
         } else {
+            this._checkPossibleWords();
             this.generateLetter();
         }
     }
@@ -117,14 +119,52 @@ class Game extends Component {
         const newLetter = {
             letter: letter,
             moving: true,
+            isWord: false,
             pos: {
                 x: columnno,
                 y: 0
             }
         }
-        console.log("newLetter ", newLetter)
         this.letters = [...this.letters, newLetter]
         this.setState({ updateFlag: !this.state.updateFlag })
+    }
+
+    _getLetterAtPos = (pos) => {
+        for (let i = 0; i < this.letters.length; i++) {
+            if (this.letters[i].pos.x == pos.x && this.letters[i].pos.y == pos.y) {
+                return this.letters[i]
+            }
+        }
+
+        return undefined;
+    }
+
+    _checkPossibleWords = () => {
+        console.log("ww will check word in ", this.letters)
+
+        this.letters.forEach((_letter, index) => {
+            let possibleWord = _letter.letter;
+            let letterEnvolved = [_letter]
+
+            //check on y
+            for (let i = _letter.pos.y - 1; i > 0; i--) {
+                let posToCheck = { x: _letter.pos.x, y: i }
+                let letterAtThisPos = this._getLetterAtPos(posToCheck)
+                console.log("letterAtThisPos", posToCheck, "  ", letterAtThisPos);
+                if (letterAtThisPos) {
+                    possibleWord = possibleWord + letterAtThisPos.letter
+                    letterEnvolved.push(letterAtThisPos)
+                } else {
+                    i = 0;
+                }
+            }
+            console.log("checking word ", possibleWord, " ||| found ", checkWord(possibleWord.toLowerCase()))
+            if (checkWord(possibleWord.toLowerCase())) letterEnvolved.forEach(_letter => _letter.isWord = true)
+
+            // check on x
+
+        })
+
     }
 
     _getLetterForThisColumn = (column) => {
@@ -137,18 +177,15 @@ class Game extends Component {
     }
 
     _getColumn = () => {
-        console.log("should update column  ")
         let columns = []
         for (let i = 0; i < noOfColumn; i++) {
             const letter = this._getLetterForThisColumn(i)
-            if (letter.length > 0) console.log("foudn in one ", letter)
             columns.push(<BlockColumn columnId={i} letters={letter} />)
         }
 
         return columns;
     }
     render() {
-        console.log(this.letters)
         return (
             <div className={css(styles.container)} >
                 {this._getColumn()}
