@@ -2,7 +2,7 @@
   "name": "word-tetris",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://AbhishekCode.github.io/word-tetris",
+  "homepage": "https://AbhishekCode.github.io/word-tetris",
   "dependencies": {
     "an-array-of-english-words": "^1.3.1",
     "aphrodite": "^2.1.0",

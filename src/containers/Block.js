@@ -29,6 +29,14 @@ const styles = StyleSheet.create({
 
 export default class Block extends Component {
 
+
+    _onBlockClick = () => {
+        const { letter, onLetterClick } = this.props;
+        if (letter, onLetterClick) {
+            onLetterClick(letter);
+        }
+    }
+
     render() {
         const { letter, pos } = this.props;
 
@@ -43,7 +51,7 @@ export default class Block extends Component {
         }
         const className = letter ? css([styles.container]) : css(styles.container)
         return (
-            <div className={className} style={fillerStyle} >
+            <div className={className} style={fillerStyle} onClick={this._onBlockClick}>
                 {letter && <span className={css(styles.mainText)}>{letter.letter}</span>}
                 < span className={css(styles.subText)} > {pos.x + "," + pos.y}</span >
             </div >

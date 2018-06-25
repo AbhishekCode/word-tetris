@@ -1,6 +1,6 @@
 
-export const noOfColumn = 10;
-export const numberOfRow = 15;
+export const noOfColumn = 8;
+export const numberOfRow = 12;
 export const moveTime = 500;
 
 

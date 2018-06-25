@@ -33,7 +33,12 @@ export default class BlockColumn extends Component {
         let blocks = []
         for (let i = 0; i < numberOfRow; i++) {
             const _letterOnBlock = this.getLetterOnBlock(i)
-            blocks.push(<Block pos={{ x: this.props.columnId, y: i }} letter={_letterOnBlock} />)
+            blocks.push(
+                <Block
+                    onLetterClick={this.props.onLetterClick}
+                    pos={{ x: this.props.columnId, y: i }}
+                    letter={_letterOnBlock} />
+            );
         }
         return blocks;
     }
