@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import { COLORS } from '../config/config';
-
+import { COLORS, blockSize } from '../config/config';
 
 const styles = StyleSheet.create({
     container: {
@@ -11,8 +10,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        height: 50,
-        width: 50
+        height: blockSize(),
+        width: blockSize()
     },
     filled: {
         backgroundColor: 'green',

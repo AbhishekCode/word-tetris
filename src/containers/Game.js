@@ -8,18 +8,28 @@ import { checkWord } from '../config/wordCheck';
 const styles = StyleSheet.create({
     container: {
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'flex-start',
         paddingLeft: 40,
         paddingRight: 40
     },
+    gameContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
+    score: {
+        padding: 5,
+    },
     controlContainer: {
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
+        flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
         padding: 10
     },
     buttons: {
+        border: '1px solid blue',
         width: 100,
         height: 40,
         margin: 10
@@ -43,14 +53,14 @@ class Game extends Component {
     }
 
     componentDidMount() {
-        window.addEventListener("keypress", this._onKeyPress);
+        window.addEventListener("keydown", this._onKeyPress);
     }
 
     _onKeyPress = (evt) => {
-        if (evt.key === "a") {
+        if (evt.key === "a" || evt.keyCode === 37) {
             //move left
             this._moveLeft()
-        } else if (evt.key === "d") {
+        } else if (evt.key === "d" || evt.keyCode === 39) {
             //move right
             this._moveRight()
         }
@@ -89,6 +99,7 @@ class Game extends Component {
 
     _startGame = () => {
         this.gameState = GAMESTATE.IN_PROGRESS;
+        this.setState({ score: 0 })
         if (this.letters.length == 0) {
             this.generateLetter();
         }
@@ -123,6 +134,13 @@ class Game extends Component {
                     this.letters[i].pos.y = this.letters[i].pos.y + 1;
                 if (this.letters[i].pos.y == numberOfRow - 1 || alreadyHas) {
                     this.letters[i].moving = false;
+                }
+                if (this.letters[i].pos.y == 0) {
+                    // so basically one column is full Game over
+                    this.gameState = GAMESTATE.ENDED;
+                    this.letters = [];
+                    this._pauseGame();
+                    this.setState({ updateFlag: !this.state.updateFlag })
                 }
                 updatedSomething = true;
             }
@@ -291,13 +309,17 @@ class Game extends Component {
         console.log("this.letters", this.letters)
         return (
             <div className={css(styles.container)} >
-                {this._getColumn()}
+                <div className={css(styles.gameContainer)}>
+                    {this._getColumn()}
+                </div>
+                <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
                 <div className={css(styles.controlContainer)}>
-                    <div> {`Score : ${this.state.score}`} </div>
                     {this.gameState != GAMESTATE.IN_PROGRESS &&
                         <button className={css(styles.buttons)} onClick={this._startGame}> {this.letters.length > 0 ? "Resume" : "Start"}</button>}
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS && <button className={css(styles.buttons)} onClick={this._pauseGame}> Pause</button>}
                     {this.wordQueue.length > 0 && <button className={css(styles.buttons)} onClick={this._checkWordAndDestroy}> Destroy Word</button>}
+                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS && <button className={css(styles.buttons)} onClick={this._moveLeft}>{"<"}</button>}
+                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS && <button className={css(styles.buttons)} onClick={this._moveRight}>{">"}</button>}
                 </div>
             </div>
         );
