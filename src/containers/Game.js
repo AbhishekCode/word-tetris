@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+
 import BlockColumn from './Column'
 import { noOfColumn, numberOfRow, moveTime } from '../config/config'
 import { checkWord } from '../config/wordCheck';
@@ -19,20 +22,22 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     score: {
-        padding: 5,
+        margin: 5,
+        paddin: 5
     },
     controlContainer: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 10
+        // flexWrap: 'wrap',
+        padding: 0
     },
     buttons: {
-        border: '1px solid blue',
-        width: 100,
+        // border: '1px solid blue',
+        width: 80,
         height: 40,
-        margin: 10
+        margin: 5
     }
 });
 
@@ -306,21 +311,24 @@ class Game extends Component {
     }
 
     render() {
-        console.log("this.letters", this.letters)
         return (
             <div className={css(styles.container)} >
                 <div className={css(styles.gameContainer)}>
                     {this._getColumn()}
                 </div>
-                <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
                 <div className={css(styles.controlContainer)}>
                     {this.gameState != GAMESTATE.IN_PROGRESS &&
-                        <button className={css(styles.buttons)} onClick={this._startGame}> {this.letters.length > 0 ? "Resume" : "Start"}</button>}
-                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS && <button className={css(styles.buttons)} onClick={this._pauseGame}> Pause</button>}
-                    {this.wordQueue.length > 0 && <button className={css(styles.buttons)} onClick={this._checkWordAndDestroy}> Destroy Word</button>}
-                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS && <button className={css(styles.buttons)} onClick={this._moveLeft}>{"<"}</button>}
-                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS && <button className={css(styles.buttons)} onClick={this._moveRight}>{">"}</button>}
+                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._startGame}> {this.letters.length > 0 ? "Resume" : "Start"}</Button>}
+                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
+                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._pauseGame}> Pause</Button>}
+                    {this.wordQueue.length > 0 &&
+                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._checkWordAndDestroy}> Destroy</Button>}
+                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
+                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveLeft}>{"<"}</Button>}
+                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
+                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveRight}>{">"}</Button>}
                 </div>
+                <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
             </div>
         );
     }
