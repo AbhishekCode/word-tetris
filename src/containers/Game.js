@@ -7,6 +7,7 @@ import Card from '@material-ui/core/Card';
 import BlockColumn from './Column'
 import { noOfColumn, numberOfRow, moveTime } from '../config/config'
 import { checkWord } from '../config/wordCheck';
+import { saveHighScore, getHighScore, scoreForThisWord } from '../config/SaveScore';
 
 const styles = StyleSheet.create({
     container: {
@@ -103,8 +104,9 @@ class Game extends Component {
 
 
     _startGame = () => {
+        if (this.gameState != GAMESTATE.PAUSED)
+            this.setState({ score: 0 })
         this.gameState = GAMESTATE.IN_PROGRESS;
-        this.setState({ score: 0 })
         if (this.letters.length == 0) {
             this.generateLetter();
         }
@@ -143,6 +145,7 @@ class Game extends Component {
                 if (this.letters[i].pos.y == 0) {
                     // so basically one column is full Game over
                     this.gameState = GAMESTATE.ENDED;
+                    saveHighScore(this.state.score)
                     this.letters = [];
                     this._pauseGame();
                     this.setState({ updateFlag: !this.state.updateFlag })
@@ -281,7 +284,7 @@ class Game extends Component {
                         if (_letterInWordQueue) return false;
                         return true
                     })
-                    const newScore = this.state.score + word.length * 10;
+                    const newScore = this.state.score + scoreForThisWord(word.length);
 
                     //fill empty space left by destroyed letters
                     if (wordIsInRow) {
@@ -328,6 +331,7 @@ class Game extends Component {
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
                         <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveRight}>{">"}</Button>}
                 </div>
+                <div className={css(styles.score)}> {`High Score : ${getHighScore()}`} </div>
                 <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
             </div>
         );
