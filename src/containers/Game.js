@@ -8,6 +8,7 @@ import BlockColumn from './Column'
 import { noOfColumn, numberOfRow, moveTime } from '../config/config'
 import { checkWord } from '../config/wordCheck';
 import { saveHighScore, getHighScore, scoreForThisWord } from '../config/SaveScore';
+import { lettersAdjustedPerWeight } from '../config/GenerateLetter';
 
 const styles = StyleSheet.create({
     container: {
@@ -48,6 +49,8 @@ const GAMESTATE = {
     PAUSED: 'paused',
     ENDED: 'ended',
 }
+
+const allletters = lettersAdjustedPerWeight();
 
 class Game extends Component {
     letters = [];
@@ -163,9 +166,7 @@ class Game extends Component {
     }
 
     generateLetter = () => {
-        const allletters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        const letter = allletters.charAt(Math.floor(Math.random() * allletters.length));
+        const letter = allletters[Math.floor(Math.random() * allletters.length)];
         const columnno = Math.floor(Math.random() * noOfColumn);
 
 
