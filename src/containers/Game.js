@@ -12,6 +12,7 @@ import { noOfColumn, numberOfRow, moveTime, windowWidth, checkWordTime } from '.
 import { checkWord } from '../config/wordCheck';
 import { saveHighScore, getHighScore, scoreForThisWord } from '../config/SaveScore';
 import { lettersAdjustedPerWeight } from '../config/GenerateLetter';
+import GameOver from './GameOver';
 
 
 
@@ -129,8 +130,13 @@ class Game extends Component {
         let updatedSomething = false
         for (let i = 0; i < this.letters.length; i++) {
             if (this.letters[i].moving) {
-                if (this.letters[i].pos.y < numberOfRow - 1) {
+                const alreadyHas = this._alreadyHasLetterInPos({ x: this.letters[i].pos.x, y: this.letters[i].pos.y + 1 });
+                if (this.letters[i].pos.y < numberOfRow - 1 && !alreadyHas) {
                     this.letters[i].pos.y = this.letters[i].pos.y + 1;
+                }
+
+                if (this.letters[i].pos.y == numberOfRow - 1 || alreadyHas) {
+                    this.letters[i].moving = false;
                 }
                 updatedSomething = true;
             }
@@ -183,10 +189,10 @@ class Game extends Component {
                 }
                 if (this.letters[i].pos.y == 0) {
                     // so basically one column is full Game over
-                    this.gameState = GAMESTATE.ENDED;
                     saveHighScore(this.state.score)
                     this.letters = [];
-                    this._pauseGame();
+                    clearInterval(this.gameInterval)
+                    this.gameState = GAMESTATE.ENDED;
                     this.setState({ updateFlag: !this.state.updateFlag })
                 }
                 updatedSomething = true;
@@ -364,9 +370,14 @@ class Game extends Component {
                     <div className={css(styles.score)}> {`High Score : ${getHighScore()}`} </div>
                     <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
                 </div>
-                <div className={css(styles.gameContainer)}>
-                    {this._getColumn()}
-                </div>
+                {this.gameState != GAMESTATE.ENDED &&
+                    <div className={css(styles.gameContainer)}>
+                        {this._getColumn()}
+                    </div>
+                }
+                {this.gameState === GAMESTATE.ENDED &&
+                    <GameOver score={this.state.score} />
+                }
                 <div className={css(styles.controlContainer)}>
                     {this.gameState != GAMESTATE.IN_PROGRESS &&
                         <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._startGame}> {this.letters.length > 0 ? "Resume" : "Start"}</Button>}

@@ -12,6 +12,7 @@
     "react-animation-frame": "^1.0.1",
     "react-dom": "^16.4.1",
     "react-scripts": "^1.1.4",
+    "react-social-sharing": "^1.3.2",
     "viewport-size": "0.0.1"
   },
   "scripts": {
