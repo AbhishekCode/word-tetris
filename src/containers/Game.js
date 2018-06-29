@@ -2,21 +2,37 @@ import React, { Component } from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
 import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
+import LeftIcon from '@material-ui/icons/ArrowBack';
+import RightIcon from '@material-ui/icons/ArrowForward';
+import DownIcon from '@material-ui/icons/ArrowDownward';
+
 
 import BlockColumn from './Column'
-import { noOfColumn, numberOfRow, moveTime } from '../config/config'
+import { noOfColumn, numberOfRow, moveTime, windowWidth, checkWordTime } from '../config/config'
 import { checkWord } from '../config/wordCheck';
 import { saveHighScore, getHighScore, scoreForThisWord } from '../config/SaveScore';
 import { lettersAdjustedPerWeight } from '../config/GenerateLetter';
+
+
 
 const styles = StyleSheet.create({
     container: {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
-        paddingLeft: 40,
-        paddingRight: 40
+    },
+    scoreLine: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        backgroundColor: '#000',
+        color: '#fff',
+        fontFamily: "'Roboto', sans-serif",
+        fontSize: "1.0rem",
+        fontWeight: 300,
+        '@media (max-width: 700px)': {
+            width: windowWidth()
+        }
     },
     gameContainer: {
         display: 'flex',
@@ -56,6 +72,7 @@ class Game extends Component {
     letters = [];
     wordQueue = [];
     gameState = GAMESTATE.INITIAL;
+    checkWordAutomatic;
     state = {
         updateFlag: false,
         score: 0
@@ -72,6 +89,9 @@ class Game extends Component {
         } else if (evt.key === "d" || evt.keyCode === 39) {
             //move right
             this._moveRight()
+        } else if (evt.key === "s" || evt.keyCode === 40) {
+            //move right
+            this._moveDown()
         }
     }
 
@@ -79,7 +99,7 @@ class Game extends Component {
         let updatedSomething = false
         for (let i = 0; i < this.letters.length; i++) {
             if (this.letters[i].moving) {
-                if (this.letters[i].pos.x > 0) {
+                if (this.letters[i].pos.x > 0 && !this._alreadyHasLetterInPos({ x: this.letters[i].pos.x - 1, y: this.letters[i].pos.y })) {
                     this.letters[i].pos.x = this.letters[i].pos.x - 1;
                 }
                 updatedSomething = true;
@@ -94,8 +114,23 @@ class Game extends Component {
         let updatedSomething = false
         for (let i = 0; i < this.letters.length; i++) {
             if (this.letters[i].moving) {
-                if (this.letters[i].pos.x < noOfColumn - 1) {
+                if (this.letters[i].pos.x < noOfColumn - 1 && !this._alreadyHasLetterInPos({ x: this.letters[i].pos.x + 1, y: this.letters[i].pos.y })) {
                     this.letters[i].pos.x = this.letters[i].pos.x + 1;
+                }
+                updatedSomething = true;
+            }
+        }
+        if (updatedSomething) {
+            this.setState({ updateFlag: !this.state.updateFlag })
+        }
+    }
+
+    _moveDown = () => {
+        let updatedSomething = false
+        for (let i = 0; i < this.letters.length; i++) {
+            if (this.letters[i].moving) {
+                if (this.letters[i].pos.y < numberOfRow - 1) {
+                    this.letters[i].pos.y = this.letters[i].pos.y + 1;
                 }
                 updatedSomething = true;
             }
@@ -123,6 +158,7 @@ class Game extends Component {
     }
 
     startMoving = () => {
+        clearInterval(this.gameInterval)
         this.gameInterval = setInterval(this.moveLetters, moveTime);
     }
 
@@ -242,12 +278,19 @@ class Game extends Component {
     _onLetterClick = (letter) => {
 
         this.letters.find(_l => {
-            if (_l.pos.x == letter.pos.x && _l.pos.y == letter.pos.y) {
+            console.log({ _l })
+            console.log({ letter })
+            if (_l && _l.pos.x == letter.pos.x && _l.pos.y == letter.pos.y) {
                 _l.isWord = true;
             }
         })
         this.wordQueue.push(letter);
         this.setState({ updateFlag: !this.state.updateFlag })
+
+
+        //check word automatically 
+        clearTimeout(this.checkWordAutomatic)
+        this.checkWordAutomatic = setTimeout(this._checkWordAndDestroy, checkWordTime)
 
     }
 
@@ -317,6 +360,10 @@ class Game extends Component {
     render() {
         return (
             <div className={css(styles.container)} >
+                <div className={css(styles.scoreLine)}>
+                    <div className={css(styles.score)}> {`High Score : ${getHighScore()}`} </div>
+                    <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
+                </div>
                 <div className={css(styles.gameContainer)}>
                     {this._getColumn()}
                 </div>
@@ -328,12 +375,12 @@ class Game extends Component {
                     {this.wordQueue.length > 0 &&
                         <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._checkWordAndDestroy}> Destroy</Button>}
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
-                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveLeft}>{"<"}</Button>}
+                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveLeft}><LeftIcon /></Button>}
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
-                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveRight}>{">"}</Button>}
+                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveRight}><RightIcon /></Button>}
+                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
+                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveDown}><DownIcon /></Button>}
                 </div>
-                <div className={css(styles.score)}> {`High Score : ${getHighScore()}`} </div>
-                <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
             </div>
         );
     }

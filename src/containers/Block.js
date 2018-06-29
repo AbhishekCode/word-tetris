@@ -42,7 +42,7 @@ export default class Block extends Component {
 
     _onBlockClick = () => {
         const { letter, onLetterClick } = this.props;
-        if (letter, onLetterClick) {
+        if (letter && onLetterClick) {
             onLetterClick(letter);
         }
     }
