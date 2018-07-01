@@ -13,6 +13,7 @@ import { checkWord } from '../config/wordCheck';
 import { saveHighScore, getHighScore, scoreForThisWord } from '../config/SaveScore';
 import { lettersAdjustedPerWeight } from '../config/GenerateLetter';
 import GameOver from './GameOver';
+import About from './About';
 
 
 
@@ -25,12 +26,12 @@ const styles = StyleSheet.create({
     scoreLine: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        backgroundColor: '#000',
+        justifyContent: 'space-around',
+        backgroundColor: '#3367D6',
         color: '#fff',
         fontFamily: "'Roboto', sans-serif",
         fontSize: "1.0rem",
-        fontWeight: 300,
+        fontWeight: 600,
         '@media (max-width: 700px)': {
             width: windowWidth()
         }
@@ -284,13 +285,18 @@ class Game extends Component {
     _onLetterClick = (letter) => {
 
         this.letters.find(_l => {
-            console.log({ _l })
-            console.log({ letter })
             if (_l && _l.pos.x == letter.pos.x && _l.pos.y == letter.pos.y) {
-                _l.isWord = true;
+                _l.isWord = !_l.isWord;
+
+                if (_l.isWord)
+                    this.wordQueue.push(letter);
+                else {
+                    //remove from wordQueue
+                    this.wordQueue.splice(this.wordQueue.findIndex(_l => _l && _l.pos.x == letter.pos.x && _l.pos.y == letter.pos.y), 1);
+                }
             }
         })
-        this.wordQueue.push(letter);
+
         this.setState({ updateFlag: !this.state.updateFlag })
 
 
@@ -392,6 +398,7 @@ class Game extends Component {
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
                         <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveDown}><DownIcon /></Button>}
                 </div>
+                <About score={this.state.score} />
             </div>
         );
     }
