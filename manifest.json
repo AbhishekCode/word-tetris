@@ -3,17 +3,17 @@
   "name": "Tetris using words",
   "icons": [
     {
-      "src": "/images/logosmall.png",
+      "src": "/word-tetris/images/logosmall.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/images/logobig.png",
+      "src": "/word-tetris/images/logobig.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": "/word-tetris/",
+  "start_url": "/",
   "background_color": "#3367D6",
   "display": "standalone",
   "scope": "/",
