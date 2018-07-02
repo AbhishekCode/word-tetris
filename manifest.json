@@ -13,9 +13,9 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "/word-tetris/",
+  "start_url": "/",
   "background_color": "#3367D6",
   "display": "standalone",
-  "scope": "/word-tetris/",
+  "scope": "/",
   "theme_color": "#3367D6"
 }
