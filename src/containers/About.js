@@ -30,7 +30,7 @@ export default class About extends Component {
                 <div>Select letters by clicking and then click destroy button(leave it for 2 second it wil happen automatically), if it is a valid word then it will disappear</div>
 
                 <h4>Check out github repo here</h4>
-                <a class="github-button" href="https://github.com/abhishekcode/word-tetris" data-size="large" data-show-count="true" aria-label="Star abhishekcode/word-tetris on GitHub">Github Repo</a>
+                <a className="github-button" href="https://github.com/abhishekcode/word-tetris" data-size="large" data-show-count="true" aria-label="Star abhishekcode/word-tetris on GitHub">Github Repo</a>
             </div>
         );
     }

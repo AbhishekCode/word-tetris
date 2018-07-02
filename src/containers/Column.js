@@ -35,6 +35,7 @@ export default class BlockColumn extends Component {
             const _letterOnBlock = this.getLetterOnBlock(i)
             blocks.push(
                 <Block
+                    key={`block${i}`}
                     onLetterClick={this.props.onLetterClick}
                     pos={{ x: this.props.columnId, y: i }}
                     letter={_letterOnBlock} />

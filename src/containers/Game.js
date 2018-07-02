@@ -85,6 +85,7 @@ class Game extends Component {
     }
 
     _onKeyPress = (evt) => {
+        evt.preventDefault();
         if (evt.key === "a" || evt.keyCode === 37) {
             //move left
             this._moveLeft()
@@ -276,7 +277,7 @@ class Game extends Component {
         let columns = []
         for (let i = 0; i < noOfColumn; i++) {
             const letter = this._getLetterForThisColumn(i)
-            columns.push(<BlockColumn columnId={i} letters={letter} onLetterClick={this._onLetterClick} />)
+            columns.push(<BlockColumn key={`column${i}`} columnId={i} letters={letter} onLetterClick={this._onLetterClick} />)
         }
 
         return columns;

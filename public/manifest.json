@@ -3,19 +3,19 @@
   "name": "Tetris using words",
   "icons": [
     {
-      "src": "/images/logosmall.png",
+      "src": "logosmall.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/images/logobig.png",
+      "src": "logobig.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": "/",
+  "start_url": "/word-tetris/index.html",
   "background_color": "#3367D6",
   "display": "standalone",
-  "scope": "/",
+  "scope": "/word-tetris/",
   "theme_color": "#3367D6"
 }
