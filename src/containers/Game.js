@@ -9,7 +9,7 @@ import DownIcon from '@material-ui/icons/ArrowDownward';
 
 import BlockColumn from './Column'
 import { noOfColumn, numberOfRow, moveTime, windowWidth, checkWordTime } from '../config/config'
-import { checkWord } from '../config/wordCheck';
+import { checkWord, sortWordQueue } from '../config/wordCheck';
 import { saveHighScore, getHighScore, scoreForThisWord } from '../config/SaveScore';
 import { lettersAdjustedPerWeight } from '../config/GenerateLetter';
 import GameOver from './GameOver';
@@ -27,14 +27,19 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-around',
+        alignItems: 'center',
         backgroundColor: '#3367D6',
         color: '#fff',
         fontFamily: "'Roboto', sans-serif",
         fontSize: "1.0rem",
         fontWeight: 600,
-        '@media (max-width: 700px)': {
+        marginBottom: 5,
+        "@media (max-width: 700px)": {
             width: windowWidth()
-        }
+        },
+        "@media (min-width: 700px)": {
+            height: 50
+        },
     },
     gameContainer: {
         display: 'flex',
@@ -58,6 +63,9 @@ const styles = StyleSheet.create({
         width: 80,
         height: 40,
         margin: 5
+    },
+    destroyColor: {
+        backgroundColor: "green"
     }
 });
 
@@ -71,6 +79,7 @@ const GAMESTATE = {
 const allletters = lettersAdjustedPerWeight();
 
 class Game extends Component {
+    nextLetter = undefined;
     letters = [];
     wordQueue = [];
     gameState = GAMESTATE.INITIAL;
@@ -85,14 +94,16 @@ class Game extends Component {
     }
 
     _onKeyPress = (evt) => {
-        evt.preventDefault();
         if (evt.key === "a" || evt.keyCode === 37) {
+            evt.preventDefault();
             //move left
             this._moveLeft()
         } else if (evt.key === "d" || evt.keyCode === 39) {
+            evt.preventDefault();
             //move right
             this._moveRight()
         } else if (evt.key === "s" || evt.keyCode === 40) {
+            evt.preventDefault();
             //move right
             this._moveDown()
         }
@@ -162,6 +173,7 @@ class Game extends Component {
     _pauseGame = () => {
         this.gameState = GAMESTATE.PAUSED;
         clearInterval(this.gameInterval)
+        saveHighScore(this.state.score) //just save
         this.setState({ updateFlag: !this.state.updateFlag })
     }
 
@@ -204,16 +216,26 @@ class Game extends Component {
             //console.log(this.state.letters, " vs ", updated)
             this.setState({ updateFlag: !this.state.updateFlag })
         } else {
-            //this._checkPossibleWords();
+            // this._checkPossibleWords();
             this.generateLetter();
         }
     }
 
+    _getNewLetter = () => {
+        let _newLetter;
+        if (this.nextLetter) {
+            _newLetter = this.nextLetter;
+            this.nextLetter = allletters[Math.floor(Math.random() * allletters.length)];
+        } else {
+            _newLetter = allletters[Math.floor(Math.random() * allletters.length)];
+            this.nextLetter = allletters[Math.floor(Math.random() * allletters.length)];
+        }
+        return _newLetter;
+    }
+
     generateLetter = () => {
-        const letter = allletters[Math.floor(Math.random() * allletters.length)];
+        const letter = this._getNewLetter();
         const columnno = Math.floor(Math.random() * noOfColumn);
-
-
         const newLetter = {
             letter: letter,
             moving: true,
@@ -238,8 +260,7 @@ class Game extends Component {
     }
 
     _checkPossibleWords = () => {
-        console.log("ww will check word in ", this.letters)
-
+        //not implemented poperly so not using
         this.letters.forEach((_letter, index) => {
             let possibleWord = _letter.letter;
             let letterEnvolved = [_letter]
@@ -248,7 +269,6 @@ class Game extends Component {
             for (let i = _letter.pos.y - 1; i > 0; i--) {
                 let posToCheck = { x: _letter.pos.x, y: i }
                 let letterAtThisPos = this._getLetterAtPos(posToCheck)
-                console.log("letterAtThisPos", posToCheck, "  ", letterAtThisPos);
                 if (letterAtThisPos) {
                     possibleWord = possibleWord + letterAtThisPos.letter
                     letterEnvolved.push(letterAtThisPos)
@@ -256,7 +276,6 @@ class Game extends Component {
                     i = 0;
                 }
             }
-            console.log("checking word ", possibleWord, " ||| found ", checkWord(possibleWord.toLowerCase()))
             if (checkWord(possibleWord.toLowerCase())) letterEnvolved.forEach(_letter => _letter.isWord = true)
 
             // check on x
@@ -309,7 +328,7 @@ class Game extends Component {
 
     _checkWordAndDestroy = () => {
         if (this.wordQueue.length > 0) {
-
+            this.wordQueue = sortWordQueue(this.wordQueue);
             //check its proper selected // in sequence
             // row check 
             let wordIsInRow = true;
@@ -335,33 +354,10 @@ class Game extends Component {
                 let word = "";
                 this.wordQueue.forEach(_w => word = word + _w.letter);
                 if (checkWord(word.toLowerCase())) {
-                    // valid word
-                    this.letters = this.letters.filter(_letter => {
-                        const _letterInWordQueue = this.wordQueue.find(_wl => (_wl.pos.x == _letter.pos.x && _wl.pos.y == _letter.pos.y))
-                        if (_letterInWordQueue) return false;
-                        return true
-                    })
-                    const newScore = this.state.score + scoreForThisWord(word.length);
-
-                    //fill empty space left by destroyed letters
-                    if (wordIsInRow) {
-                        this.wordQueue.forEach(_wq => {
-                            this.letters.forEach(_l => {
-                                if (_l.pos.x == _wq.pos.x && _l.pos.y < _wq.pos.y) {
-                                    _l.pos.y = _l.pos.y + 1;
-                                }
-                            })
-                        })
-                    } else if (wordIsInColumn) {
-                        this.letters.forEach(_l => {
-                            if (_l.pos.x == this.wordQueue[0].pos.x && _l.pos.y < this.wordQueue[0].pos.y) {
-                                _l.pos.y = _l.pos.y + this.wordQueue.length
-                            }
-                        })
-                    }
-
-
-                    this.setState({ updateFlag: !this.state.updateFlag, score: newScore })
+                    this._foundValidWord(word, wordIsInRow, wordIsInColumn);
+                } else if (checkWord(word.toLowerCase().split("").reverse().join(""))) {
+                    // check reverse word as well
+                    this._foundValidWord(word, wordIsInRow, wordIsInColumn);
                 }
             }
             this.wordQueue = [];
@@ -370,12 +366,43 @@ class Game extends Component {
         }
     }
 
+    _foundValidWord = (word, wordIsInRow, wordIsInColumn) => {
+        // valid word
+        this.letters = this.letters.filter(_letter => {
+            const _letterInWordQueue = this.wordQueue.find(_wl => (_wl.pos.x == _letter.pos.x && _wl.pos.y == _letter.pos.y))
+            if (_letterInWordQueue) return false;
+            return true
+        })
+        const newScore = this.state.score + scoreForThisWord(word.length);
+
+        //fill empty space left by destroyed letters
+        if (wordIsInRow) {
+            this.wordQueue.forEach(_wq => {
+                this.letters.forEach(_l => {
+                    if (_l.pos.x == _wq.pos.x && _l.pos.y < _wq.pos.y) {
+                        _l.pos.y = _l.pos.y + 1;
+                    }
+                })
+            })
+        } else if (wordIsInColumn) {
+            this.letters.forEach(_l => {
+                if (_l.pos.x == this.wordQueue[0].pos.x && _l.pos.y < this.wordQueue[0].pos.y) {
+                    _l.pos.y = _l.pos.y + this.wordQueue.length
+                }
+            })
+        }
+
+
+        this.setState({ updateFlag: !this.state.updateFlag, score: newScore })
+    }
+
     render() {
         return (
             <div className={css(styles.container)} >
                 <div className={css(styles.scoreLine)}>
-                    <div className={css(styles.score)}> {`High Score : ${getHighScore()}`} </div>
+                    <div className={css(styles.score)}> {`Best : ${getHighScore()}`} </div>
                     <div className={css(styles.score)}> {`Score : ${this.state.score}`} </div>
+                    {this.nextLetter && <div className={css(styles.score)}> {`Next : ${this.nextLetter.toUpperCase()}`} </div>}
                 </div>
                 {this.gameState != GAMESTATE.ENDED &&
                     <div className={css(styles.gameContainer)}>
@@ -387,17 +414,17 @@ class Game extends Component {
                 }
                 <div className={css(styles.controlContainer)}>
                     {this.gameState != GAMESTATE.IN_PROGRESS &&
-                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._startGame}> {this.letters.length > 0 ? "Resume" : "Start"}</Button>}
+                        <Button variant="contained" size="small" color="secondary" className={css(styles.buttons)} onClick={this._startGame}> {this.letters.length > 0 ? "Resume" : "Start"}</Button>}
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
-                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._pauseGame}> Pause</Button>}
+                        <Button variant="contained" size="small" color="secondary" className={css(styles.buttons)} onClick={this._pauseGame}> Pause</Button>}
                     {this.wordQueue.length > 0 &&
-                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._checkWordAndDestroy}> Destroy</Button>}
+                        <Button variant="contained" size="small" color="primary" className={css([styles.buttons, styles.destroyColor])} onClick={this._checkWordAndDestroy}> Destroy</Button>}
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
-                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveLeft}><LeftIcon /></Button>}
+                        <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveLeft}><LeftIcon /></Button>}
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
-                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveRight}><RightIcon /></Button>}
+                        <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveRight}><RightIcon /></Button>}
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
-                        <Button variant="contained" size="small" className={css(styles.buttons)} onClick={this._moveDown}><DownIcon /></Button>}
+                        <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveDown}><DownIcon /></Button>}
                 </div>
                 <About score={this.state.score} />
             </div>

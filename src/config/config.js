@@ -10,14 +10,13 @@ export const windowHeight = () => viewportSize.getHeight();
 export const windowWidth = () => viewportSize.getWidth();
 
 export const blockSize = () => {
-    const calculatedSize = (viewportSize.getWidth() - 20) / 8;
-
-    return calculatedSize < 60 ? calculatedSize : 50;
+    const calculatedSize = (viewportSize.getWidth() - 10) / noOfColumn;
+    return calculatedSize < 60 ? calculatedSize : 60;
 }
 
 
 export const COLORS = {
-    MOVING: "#42f4f4",
-    NOTMOVING: "#7d845b",
+    MOVING: "#8237fb",
+    NOTMOVING: "#262723",
     POSSIBLE_WORD: "#32bc4c"
 }
