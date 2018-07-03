@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
         fontFamily: "'Roboto', sans-serif",
         fontSize: "1.0rem",
         fontWeight: 600,
-        marginBottom: 5,
         "@media (max-width: 700px)": {
             width: windowWidth()
         },
@@ -422,9 +421,9 @@ class Game extends Component {
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
                         <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveLeft}><LeftIcon /></Button>}
                     {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
-                        <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveRight}><RightIcon /></Button>}
-                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
                         <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveDown}><DownIcon /></Button>}
+                    {this.gameState != GAMESTATE.PAUSED && this.gameState === GAMESTATE.IN_PROGRESS &&
+                        <Button variant="contained" size="small" color="primary" className={css(styles.buttons)} onClick={this._moveRight}><RightIcon /></Button>}
                 </div>
                 <About score={this.state.score} />
             </div>
